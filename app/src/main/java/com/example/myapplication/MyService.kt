@@ -2,30 +2,34 @@ package com.example.myapplication
 
 import android.app.Service
 import android.content.Intent
+import android.os.Binder
 import android.os.IBinder
 import android.util.Log
 import android.widget.Toast
+import java.util.*
 
 
+class LocalService : Service() {
+    // Binder given to clients
+    private val binder = LocalBinder()
 
+    // Random number generator
+    private val mGenerator = Random()
 
-class MyService: Service() {
-    override fun onBind(p0: Intent?): IBinder? {
-        return null
+    /** method for clients  */
+    val randomNumber: Int
+        get() = mGenerator.nextInt(100)
+
+    /**
+     * Class used for the client Binder.  Because we know this service always
+     * runs in the same process as its clients, we don't need to deal with IPC.
+     */
+    inner class LocalBinder : Binder() {
+        // Return this instance of LocalService so clients can call public methods
+        fun getService(): LocalService = this@LocalService
     }
 
-
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        // Let it continue running until it is stopped.
-        Toast.makeText(this, "Service Started", Toast.LENGTH_LONG).show()
-        Log.d("TEST","test")
-        return START_STICKY
+    override fun onBind(intent: Intent): IBinder {
+        return binder
     }
-
-
-    override fun onDestroy() {
-        super.onDestroy()
-        Toast.makeText(this, "Service Destroyed", Toast.LENGTH_LONG).show()
-    }
-
 }
